@@ -38,6 +38,26 @@ def askForData():
             response = receive_response(client_socket)
             print("Respuesta del servidor:", response)
 
+            # Authentication
+            auth_command = "AUTH LOGIN\r\n"
+            client_socket.send(auth_command.encode())
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
+
+            # Send username (codified)
+            encoded_username = base64.b64encode(username.encode()).decode()
+            client_socket.send(encoded_username.encode() + b"\r\n")
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
+
+            # Send password (codified)
+            encoded_password = base64.b64encode(password.encode()).decode()
+            client_socket.send(encoded_password.encode() + b"\r\n")
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
+
+            
+
     except Exception as ex:
         print("Error:", ex)
 
@@ -48,3 +68,5 @@ def send_command(socket, command):
 def receive_response(socket):
     buffer = socket.recv(1024)
     return buffer.decode()
+
+
