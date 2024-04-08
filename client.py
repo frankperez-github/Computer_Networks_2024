@@ -1,5 +1,5 @@
 import socket
-
+import base64
 
 def main():
     askForData()
@@ -23,11 +23,13 @@ def askForData():
             """ + message + """\r\n
             \r\n.\r\n"""
         
+
+
         # Set conection to server
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             client_socket.connect((server_host, server_port))
             
-            # Initial server response
+            # Lee la respuesta inicial del servidor
             response = receive_response(client_socket)
             print("Respuesta del servidor:", response)
 
@@ -56,7 +58,37 @@ def askForData():
             response = receive_response(client_socket)
             print("Respuesta del servidor:", response)
 
-            
+            # Command MAIL FROM to declare sender
+            send_command(client_socket, "MAIL FROM:<" + username + ">")
+
+            # Server response 
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
+
+            # Command RCPT TO to declare receiver
+            send_command(client_socket, "RCPT TO:<" +destiny + ">")
+
+            # Server response
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
+
+            # Command DATA to send data :)
+            send_command(client_socket, "DATA")
+
+            # Server response
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
+
+            # Send message
+            send_command(client_socket, message_complile)
+
+            # Server response
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
+
+            # End conection
+            client_socket.shutdown(socket.SHUT_RDWR)
+            client_socket.close()
 
     except Exception as ex:
         print("Error:", ex)
@@ -71,4 +103,3 @@ def receive_response(socket):
 
 if __name__ == "__main__":
     main()
-
