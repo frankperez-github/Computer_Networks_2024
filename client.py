@@ -69,4 +69,6 @@ def receive_response(socket):
     buffer = socket.recv(1024)
     return buffer.decode()
 
+if __name__ == "__main__":
+    main()
 
