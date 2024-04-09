@@ -1,6 +1,8 @@
 from flask import Flask, request, render_template_string
 import socket
 import base64
+import tempfile
+import os
 
 app = Flask(__name__)
 
@@ -16,12 +18,13 @@ html_email = """
 </head>
 <body>
     <h2>Redactar nuevo email</h2>
-    <form method="post">
+    <form method="post" enctype="multipart/form-data">
         Email: <input required type="text" name="username"><br>
         Contraseña: <input required type="password" name="password"><br>
         Asunto: <input type="text" name="subject"><br>
         Destino: <input required type="text" name="destiny"><br>
         Mensaje: <textarea name="message"></textarea><br>
+        Archivo: <input type="file" name="file"><br>
         <button class="submit_button" value="Send Email">Enviar</button>
     </form>
 </body>
@@ -59,6 +62,18 @@ html_fail="""
 </body>
 </html>
 """
+def encode_attachment(file_path):
+    with open(file_path, "rb") as file:
+        content = file.read()
+        content_type = "application/octet-stream"  # Tipo de contenido predeterminado si no se puede determinar
+        # Determinar el tipo de contenido basado en la extensión del archivo si es posible
+        if file_path.endswith(".png"):
+            content_type = "image/png"
+        elif file_path.endswith(".jpg") or file_path.endswith(".jpeg"):
+            content_type = "image/jpeg"
+        # Codificar el contenido del archivo en base64
+        encoded_content = base64.b64encode(content).decode()
+        return content_type, encoded_content
 
 def send_command(socket, command):
     data = (command + "\r\n").encode()
@@ -68,8 +83,36 @@ def receive_response(socket):
     buffer = socket.recv(1024)
     return buffer.decode()
 
-def send_email(server_host, server_port, username, password, subject, destiny, message):
-    message_compile = f'Subject: {subject}\r\nFrom: {username}\r\nTo: {destiny}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n{message}\r\n.\r\n'
+def send_email(server_host, server_port, username, password, subject, destiny, message, attachment_path=None):
+    # message_compile = f'Subject: {subject}\r\nFrom: {username}\r\nTo: {destiny}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n{message}\r\n.\r\n'
+    boundary = "----=_Part_0_123456789.123456789"
+    attachment_type, attachment_content = encode_attachment(attachment_path) if attachment_path else (None, None)
+    
+    headers = [
+        f"From: {username}",
+        f"To: {destiny}",
+        f"Subject: {subject}",
+        f"Content-Type: multipart/mixed; boundary=\"{boundary}\"",
+        "",
+        f"--{boundary}",
+        "Content-Type: text/plain; charset=utf-8",
+        "",
+        message
+    ]
+    
+    if attachment_path:
+        file_name = os.path.basename(attachment_path)
+        headers.extend([
+            f"--{boundary}",
+            f"Content-Type: {attachment_type}",
+            f"Content-Transfer-Encoding: base64",
+            f"Content-Disposition: attachment; filename=\"{file_name}\"",
+            "",
+            attachment_content
+        ])
+    
+    headers.append(f"--{boundary}--")
+    message_compile = "\r\n".join(headers) + "\r\n.\r\n"
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
             server_host = "localhost"  
@@ -134,7 +177,19 @@ def send_email_page():
         subject = request.form['subject']
         destiny = request.form['destiny']
         message = request.form['message']
-        if send_email(server_host, server_port, username, password, subject, destiny, message):
+        file = request.files['file']
+        attachment_path = None
+        if file:
+            # Guarda el archivo temporalmente o prepárate para enviarlo
+            # Por simplicidad, puedes guardar el archivo y luego pasarlo
+            temp_dir = tempfile.mkdtemp()
+            filename = os.path.join(temp_dir, file.filename)
+            file.save(filename)
+            attachment_path = filename
+        if send_email(server_host, server_port, username, password, subject, destiny, message, attachment_path):
+            if attachment_path:
+                os.remove(attachment_path)
+                os.rmdir(temp_dir)
             return render_template_string(html_success)
         else:
             return(render_template_string(html_fail))
