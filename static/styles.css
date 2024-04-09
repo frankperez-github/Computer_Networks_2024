@@ -2,6 +2,16 @@
 {
     font-family: 'Courier New', Courier, monospace;
 }
+a
+{
+    margin-left: 45%;
+}
+h1
+{
+    margin-left: 40%;
+    margin-top: 17%;
+    width: 50%;
+}
 h2
 {
     width: 50%;
@@ -44,4 +54,12 @@ form{
     margin: 10px;
     margin-left: 30%;
     margin-top: 5%;
+}
+.fail
+{
+    color: red;
+}
+.success
+{
+    color: rgb(0, 191, 0);
 }

@@ -38,8 +38,24 @@ html_success="""
     <title>SMTP homemade</title>
 </head>
 <body>
-    <h1>Email enviado!!!</h1>
-    <button>Redactar nuevo</button>
+    <h1 class="success">Email enviado!!!</h1>
+    <a href="/">Redactar nuevo</a>
+</body>
+</html>
+"""
+
+html_fail="""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <title>SMTP homemade</title>
+</head>
+<body>
+    <h1 class="fail">Ha habido un error</h1>
+    <a href="/">Redactar nuevo</a>
 </body>
 </html>
 """
@@ -99,6 +115,8 @@ def send_email(server_host, server_port, username, password, subject, destiny, m
             print("Email sent successfully!")
     except Exception as ex:
         print(f"Error: {ex}")
+        return False
+    return True
 
 @app.route('/', methods=['GET', 'POST'])
 def send_email_page():
@@ -110,8 +128,10 @@ def send_email_page():
         subject = request.form['subject']
         destiny = request.form['destiny']
         message = request.form['message']
-        send_email(server_host, server_port, username, password, subject, destiny, message)
-        return render_template_string(html_success)
+        if send_email(server_host, server_port, username, password, subject, destiny, message):
+            return render_template_string(html_success)
+        else:
+            return(render_template_string(html_fail))
     return render_template_string(html_email)
 
 if __name__ == '__main__':
