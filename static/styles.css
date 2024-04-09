@@ -1,0 +1,47 @@
+*
+{
+    font-family: 'Courier New', Courier, monospace;
+}
+h2
+{
+    width: 50%;
+    margin-left: 25%;
+    margin-top: 5%;
+    text-align: center;
+    color: gray;
+}
+input, textarea{
+    border: none;
+    border-bottom: solid 1px rgb(130, 130, 130);
+}
+input:focus, textarea:focus
+{
+    border-color: blue;
+    outline: none;
+}
+input:hover, textarea:hover
+{
+    cursor: pointer;
+    border-color: blue;
+}
+button
+{
+    background-color: aliceblue;
+    padding: 7px;
+    width: 50%;
+    margin-left: 50%;
+    border-radius: 5px;
+    border: solid 1px black;
+    cursor: pointer;
+    margin-top: 5%;
+}
+
+form{
+    width: 50%;
+    display: grid;
+    grid-template-columns: 20% 50%;
+    grid-gap: 20px;
+    margin: 10px;
+    margin-left: 30%;
+    margin-top: 5%;
+}

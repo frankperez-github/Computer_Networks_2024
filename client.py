@@ -5,24 +5,41 @@ import base64
 app = Flask(__name__)
 
 
-html_template = """
+html_email = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send Email</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <title>SMTP homemade</title>
 </head>
 <body>
-    <h2>Send Email</h2>
+    <h2>Redactar nuevo email</h2>
     <form method="post">
-        Email: <input type="text" name="username"><br>
-        Password: <input type="password" name="password"><br>
-        Subject: <input type="text" name="subject"><br>
-        Destination: <input type="text" name="destiny"><br>
-        Message: <textarea name="message"></textarea><br>
-        <input type="submit" value="Send Email">
+        Email: <input required type="text" name="username"><br>
+        Contraseña: <input required type="password" name="password"><br>
+        Asunto: <input type="text" name="subject"><br>
+        Destino: <input required type="text" name="destiny"><br>
+        Mensaje: <textarea name="message"></textarea><br>
+        <button class="submit_button" value="Send Email">Enviar</button>
     </form>
+</body>
+</html>
+"""
+
+html_success="""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <title>SMTP homemade</title>
+</head>
+<body>
+    <h1>Email enviado!!!</h1>
+    <button>Redactar nuevo</button>
 </body>
 </html>
 """
@@ -94,8 +111,8 @@ def send_email_page():
         destiny = request.form['destiny']
         message = request.form['message']
         send_email(server_host, server_port, username, password, subject, destiny, message)
-        return 'Email sent successfully!'
-    return render_template_string(html_template)
+        return render_template_string(html_success)
+    return render_template_string(html_email)
 
 if __name__ == '__main__':
     app.run(debug=True, port=3000)
