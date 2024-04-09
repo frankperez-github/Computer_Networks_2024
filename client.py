@@ -72,7 +72,13 @@ def send_email(server_host, server_port, username, password, subject, destiny, m
     message_compile = f'Subject: {subject}\r\nFrom: {username}\r\nTo: {destiny}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n{message}\r\n.\r\n'
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
+            server_host = "localhost"  
+            server_port = 25
             client_socket.connect((server_host, server_port))
+            
+            #Server response
+            response = receive_response(client_socket)
+            print("Respuesta del servidor:", response)
             
             # EHLO command
             send_command(client_socket, "EHLO localhost")
