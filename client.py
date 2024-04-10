@@ -24,7 +24,7 @@ html_email = """
         Asunto: <input type="text" name="subject"><br>
         Destino: <input required type="text" name="destiny"><br>
         Mensaje: <textarea name="message"></textarea><br>
-        Archivo: <input type="file" name="file"><br>
+        Archivo: <input type="file" name="file" class="normalInput"><br>
         <button class="submit_button" value="Send Email">Enviar</button>
     </form>
 </body>
@@ -65,13 +65,11 @@ html_fail="""
 def encode_attachment(file_path):
     with open(file_path, "rb") as file:
         content = file.read()
-        content_type = "application/octet-stream"  # Tipo de contenido predeterminado si no se puede determinar
-        # Determinar el tipo de contenido basado en la extensión del archivo si es posible
+        content_type = "application/octet-stream"  
         if file_path.endswith(".png"):
             content_type = "image/png"
         elif file_path.endswith(".jpg") or file_path.endswith(".jpeg"):
             content_type = "image/jpeg"
-        # Codificar el contenido del archivo en base64
         encoded_content = base64.b64encode(content).decode()
         return content_type, encoded_content
 
@@ -84,7 +82,7 @@ def receive_response(socket):
     return buffer.decode()
 
 def send_email(server_host, server_port, username, password, subject, destiny, message, attachment_path=None):
-    boundary = "----=_Part_0_123456789.123456789"
+    boundary = "|------------------------------|"
     attachment_type, attachment_content = encode_attachment(attachment_path) if attachment_path else (None, None)
     
     headers = [
@@ -179,7 +177,6 @@ def send_email_page():
         File = request.files['file']
         attachment_path = None
         if File:
-            # Save file or send it
             temp_dir = tempfile.mkdtemp()
             filename = os.path.join(temp_dir, File.filename)
             File.save(filename)
