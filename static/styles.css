@@ -63,3 +63,7 @@ form{
 {
     color: rgb(0, 191, 0);
 }
+.normalInput{
+    border: none;
+    padding-top: 2%;
+}

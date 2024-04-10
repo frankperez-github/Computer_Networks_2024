@@ -22,6 +22,7 @@ html_email = """
         Asunto: <input type="text" name="subject"><br>
         Destino: <input required type="text" name="destiny"><br>
         Mensaje: <textarea name="message"></textarea><br>
+        Adjuntar Archivo: <input type="file" class="normalInput" name="file"/><br>
         <button class="submit_button" value="Send Email">Enviar</button>
     </form>
 </body>
@@ -134,7 +135,8 @@ def send_email_page():
         subject = request.form['subject']
         destiny = request.form['destiny']
         message = request.form['message']
-        if send_email(server_host, server_port, username, password, subject, destiny, message):
+        File = request.form['file']
+        if send_email(server_host, server_port, username, password, subject, destiny, message, File):
             return render_template_string(html_success)
         else:
             return(render_template_string(html_fail))
